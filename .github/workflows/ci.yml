@@ -42,17 +42,21 @@ jobs:
           docker build -t pawspal-app:${{ github.sha }} .
           echo "Image built successfully with tag ${{ github.sha }}"
 
- # STAGE 3: Deploy (Kubernetes Manifest Validation)
+ # # STAGE 3: Deploy (Kubernetes Manifest Validation)
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       
+      - name: Install Kubeconform
+        run: |
+          # Download the professional validation tool
+          curl -L https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
+          sudo mv kubeconform /usr/local/bin/
+          
       - name: Validate Kubernetes Manifests
         run: |
-          # Use 'create' instead of 'apply' for local validation
-          # Use --validate=false to skip server API checks
-          kubectl create --dry-run=client -f k8s/config.yaml --validate=false
-          kubectl create --dry-run=client -f k8s/deployment.yaml --validate=false
-          echo "Success: Kubernetes manifests are syntactically correct."
+          # This validates your YAMLs against official Kubernetes schemas
+          kubeconform -summary k8s/
+          echo "Success: All Kubernetes manifests are valid."
