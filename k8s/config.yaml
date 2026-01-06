@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pawspal-config
+data:
+  APP_ENV: "Production-Kubernetes"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pawspal-secret
+type: Opaque
+data:
+  # Base64 for "pawspal123"
+  DB_PASSWORD: cGF3c3BhbDEyMw==
