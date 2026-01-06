@@ -63,8 +63,11 @@ app.get('/', (req, res) => {
 // Health check endpoint for Kubernetes
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
-app.listen(PORT, () => {
-    console.log(`${APP_NAME} UI running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`PawsPalConnect UI running at http://localhost:${PORT}`);
+    });
+}
 
 module.exports = app;
+
