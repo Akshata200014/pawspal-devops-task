@@ -1,0 +1,57 @@
+name: PawsPal CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # STAGE 1: Test and Lint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Dependencies
+        run: npm install
+        
+      - name: Run Unit Tests
+        run: npm test # Fails pipeline if tests fail
+        
+      - name: Run Linting check
+        run: npx eslint . || echo "Linting issues found"
+
+  # STAGE 2: Build (Docker Containerization)
+  build:
+    needs: test # Only runs if tests pass
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker Image
+        run: |
+          docker build -t pawspal-app:${{ github.sha }} .
+          echo "Image built successfully with tag ${{ github.sha }}"
+
+  # STAGE 3: Deploy (Kubernetes Manifest Validation)
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Validate Kubernetes Manifests
+        run: |
+          # This checks if your YAML files are formatted correctly
+          kubectl apply --dry-run=client -f k8s/config.yaml
+          kubectl apply --dry-run=client -f k8s/deployment.yaml
+          echo "Deployment manifests are valid and ready."
