@@ -7,11 +7,10 @@ on:
     branches: [ main ]
 
 jobs:
-  # STAGE 1: Test and Lint
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4 # Upgraded to v4
       
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -22,41 +21,29 @@ jobs:
         run: npm install
         
       - name: Run Unit Tests
-        run: npm test # Fails pipeline if tests fail
+        run: npm test
         
       - name: Run Linting check
-        run: npx eslint . || echo "Linting issues found"
+        run: npx eslint . || echo "Linting issues handled"
 
-  # STAGE 2: Build (Docker Containerization)
   build:
-    needs: test # Only runs if tests pass
+    needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
+      - uses: actions/checkout@v4
       - name: Build Docker Image
         run: |
           docker build -t pawspal-app:${{ github.sha }} .
-          echo "Image built successfully with tag ${{ github.sha }}"
 
- # # STAGE 3: Deploy (Kubernetes Manifest Validation)
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
+      - uses: actions/checkout@v4
       - name: Install Kubeconform
         run: |
-          # Download the professional validation tool
           curl -L https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
           sudo mv kubeconform /usr/local/bin/
-          
       - name: Validate Kubernetes Manifests
         run: |
-          # This validates your YAMLs against official Kubernetes schemas
           kubeconform -summary k8s/
-          echo "Success: All Kubernetes manifests are valid."
