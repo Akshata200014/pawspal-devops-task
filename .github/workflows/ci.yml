@@ -42,7 +42,7 @@ jobs:
           docker build -t pawspal-app:${{ github.sha }} .
           echo "Image built successfully with tag ${{ github.sha }}"
 
-  # STAGE 3: Deploy (Kubernetes Manifest Validation)
+ # STAGE 3: Deploy (Kubernetes Manifest Validation)
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -51,7 +51,8 @@ jobs:
       
       - name: Validate Kubernetes Manifests
         run: |
-          # Added --validate=false to skip the server-side check
-          kubectl apply --dry-run=client -f k8s/config.yaml --validate=false
-          kubectl apply --dry-run=client -f k8s/deployment.yaml --validate=false
-          echo "Deployment manifests are syntactically valid and ready."
+          # Use 'create' instead of 'apply' for local validation
+          # Use --validate=false to skip server API checks
+          kubectl create --dry-run=client -f k8s/config.yaml --validate=false
+          kubectl create --dry-run=client -f k8s/deployment.yaml --validate=false
+          echo "Success: Kubernetes manifests are syntactically correct."
