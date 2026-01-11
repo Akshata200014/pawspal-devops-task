@@ -29,6 +29,7 @@ PAWSPAL-DEVOPS-TASK/
 1. 🛠️ HOW TO RUN
 
 npm install
+
 npm start
 
 Access at: http://localhost:3000
@@ -38,6 +39,7 @@ Access at: http://localhost:3000
 2. Docker
 
 docker build -t pawspal-app .
+
 docker run -p 3000:3000 pawspal-app
 
 ---
@@ -45,6 +47,7 @@ docker run -p 3000:3000 pawspal-app
 3. kubernetes
    
   kubectl apply -f k8s/config.yaml
+  
   kubectl apply -f k8s/deployment.yaml
 
   ---
@@ -64,3 +67,4 @@ docker run -p 3000:3000 pawspal-app
   Liveness Probe: Monitors if the app is alive; restarts the container if it crashes.
   Readiness Probe: Ensures the app is fully loaded before sending user traffic.
    
+
